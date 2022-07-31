@@ -22,12 +22,12 @@
 
 module tb_debounce();
  // Inputs
- reg pb_1;
- reg clk;
+ reg        pb_1;
+ reg        clk;
  // Outputs
- wire pb_out;
- wire okey, ovalid, okey1;
-  wire okey2, ovalid2;
+ wire       pb_out;
+ wire       okey, ovalid, okey1;
+ wire       okey2, ovalid2;
  reg rst_n;
  // Instantiate the debouncing Verilog code
   debounce2  #(
@@ -40,8 +40,9 @@ module tb_debounce();
     .okey        (okey2),
     .ovalid      (ovalid2)
     );
+
 debounce1 #(
-       .CLK_FREQ   (20),
+    .CLK_FREQ   (20),
     .DELAY_TIME (2)
 )u_db1(
     .clk    (clk),
@@ -49,12 +50,13 @@ debounce1 #(
     .ikey   (pb_1),
     .okey   (okey1)
 );
- debounce0 #(10)
+
+debounce0 #(10)
  u_db0 (
     .rst_n (rst_n),
-  .pb_1(~pb_1), 
-  .clk(clk), 
-  .pb_out(pb_out)
+    .pb_1(~pb_1), 
+    .clk(clk), 
+    .pb_out(pb_out)
  );
  debounce  #(
     .CLK_FREQ   (20),
@@ -76,9 +78,10 @@ debounce1 #(
     rst_n = 1;
  end
  initial
-begin            
+begin
+    // [Verilog $dumpvars and $dumpfile and](http://www.referencedesigner.com/tutorials/verilog/verilog_62.php)  
     $dumpfile("db.vcd");        //生成的vcd文件名称
-    $dumpvars(0, tb_debounce);    //tb模块名称
+    $dumpvars(0, tb_debounce);    //保存tb_debounc模块及其中引用的所有子模块内的变量
 end
  initial begin
  pb_1 = 0;
