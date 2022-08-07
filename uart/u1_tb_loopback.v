@@ -20,17 +20,54 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module tb_loopback(
+module tb_loopback();
 
-    );
-
+initial
+begin
+    // [Verilog $dumpvars and $dumpfile and](http://www.referencedesigner.com/tutorials/verilog/verilog_62.php)  
+    $dumpfile("u1_tb_loopback.vcd");        //生成的vcd文件名称
+    $dumpvars(0, tb_loopback);    //保存tb_debounc模块及其中引用的所有子模块内的变量
+end
 
 wire sys_clk;
 wire sys_rst_n;
-STARTUPE2 STARTUPE2_inst (
-.CFGMCLK(sys_clk),     // 1-bit output: Configuration internal oscillator clock output 65MHz.
-.EOS(sys_rst_n)            // 1-bit output: Active high output signal indicating the End Of Startup.
-);
+
+
+`ifdef SIM
+generate
+    if (`SIM==0) begin
+        wire clk0;
+        wire rst_n0;
+        initial $display("Simulation in Vivado");
+        STARTUPE2 STARTUPE2_inst (
+        .CFGMCLK(clk0),     // 1-bit output: Configuration internal oscillator clock output 65MHz.
+        .EOS(rst_n0)            // 1-bit output: Active high output signal indicating the End Of Startup.
+        );
+        assign sys_clk = clk0;
+        assign sys_rst_n =  rst_n0;
+    end else begin
+        initial begin
+            $display("Simulation in iverilog,%m");
+        end
+        reg clk;
+        reg rst_n;
+        initial begin
+            clk = 0;
+            rst_n = 0;
+            repeat(2) @(posedge clk);
+            rst_n = 1;
+        end
+        always #10 clk = ~clk;
+        
+        assign sys_clk = clk;
+        assign sys_rst_n =  rst_n;
+    end
+
+endgenerate
+
+`endif
+
+
 
 reg         uart_en;
 reg  [7:0]  uart_din;
@@ -79,6 +116,7 @@ u_loop (
     .UART_RXD       (rxd),
     .UART_TXD       (txd)
     );
+
 always @(posedge sys_clk or negedge sys_rst_n) begin
     if (~sys_rst_n) begin
         uart_en <=0 ;
@@ -94,5 +132,12 @@ always @(posedge sys_clk or negedge sys_rst_n) begin
             uart_en <= 1'b0;
         end
     end
+end
+always @(posedge sys_clk) begin
+    if (rid==12) $finish;
+end
+initial begin
+    # (20*1000)
+    $finish;
 end
 endmodule
