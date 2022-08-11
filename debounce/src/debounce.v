@@ -29,8 +29,7 @@ module debounce #(
     input           clk,
     input           rst_n,
     input           ikey,
-    output reg      okey,
-    output reg      ovalid
+    output reg      okey
     );
 
 localparam CNT = CLK_FREQ/DELAY_TIME;       // 延迟时钟数
@@ -65,16 +64,13 @@ end
 always @(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
         okey <= DEFAULT_VALUE;
-        ovalid <= 1'b0;
     end else begin
         if (count==1'b1) begin
             // 延迟CNT个时钟周期后更新输出值
             // 此处不使用0因为cnt可能会在0值维持较长一段时间
             okey <= ikey;
-            ovalid <= 1'b1;
         end else begin
             okey <= okey;
-            ovalid <= 0;
         end
     end
 end

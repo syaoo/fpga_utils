@@ -58,16 +58,28 @@ debounce0 #(10)
     .clk(clk), 
     .pb_out(pb_out)
  );
+
  debounce  #(
     .CLK_FREQ   (20),
-    .DELAY_TIME (2)
-    )u_db(
+    .DELAY_TIME (2),
+    .DEFAULT_VALUE (0)
+    )u_db_0(
     .clk         (clk),
     .rst_n       (rst_n),
     .ikey        (pb_1),
-    .okey        (okey),
-    .ovalid      (ovalid)
+    .okey        (okey)
     );
+debounce  #(
+    .CLK_FREQ   (20),
+    .DELAY_TIME (2),
+    .DEFAULT_VALUE (1)
+    )u_db_1(
+    .clk         (clk),
+    .rst_n       (rst_n),
+    .ikey        (~pb_1),
+    .okey        (okey)
+    );
+
  initial begin
   clk = 0;
   forever #10 clk = ~clk;
